@@ -8,9 +8,9 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 
 
-const Profile = () => <div><h1>User Profile</h1></div>;
 
 function App() {
   return (
