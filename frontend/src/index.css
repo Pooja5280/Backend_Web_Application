@@ -1,49 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #213547;
-  background-color: #ffffff;
+  /* X / Twitter Dark Theme Palette */
+  --bg-color: #000000;
+  --surface-color: #000000;
+  --border-color: #2f3336;
+  --primary: #1d9bf0;
+  --primary-hover: #1a8cd8;
+  --text-main: #e7e9ea;
+  --text-secondary: #71767b;
+  --danger: #f4212e;
+  --success: #00ba7c;
+  --backdrop: rgba(91, 112, 131, 0.4);
 }
 
 body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  display: block; 
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* --- Layouts --- */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
   width: 100%;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #646cff;
-  color: white;
-  cursor: pointer;
-  transition: border-color 0.25s;
+.auth-container {
+  background: var(--surface-color);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-button:hover {
-  background-color: #535bf2;
+/* --- DASHBOARD LAYOUT --- */
+.dashboard-container {
+  /* Accommodate the fixed header */
+  margin-top: 120px; 
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
+  width: 90%; 
+  max-width: 1050px; 
 }
+
+/* --- Header (Full Width & Taller) --- */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+  
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+.app-header h2 { margin: 0; font-size: 22px; color: white; }
+.app-header div { display: flex; align-items: center; gap: 20px; }
+
+/* --- Typography & Forms --- */
+h2 { font-weight: 800; font-size: 31px; margin-bottom: 0.5rem; color: var(--text-main); }
+.sub-text { color: var(--text-secondary); font-size: 15px; margin-bottom: 2rem; }
+label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-main); }
+.form-group { margin-bottom: 1.5rem; }
 
 input {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  width: 100%;
-  box-sizing: border-box; 
+  width: 100%; padding: 1rem; background-color: black;
+  border: 1px solid var(--border-color); border-radius: 4px;
+  color: var(--text-main); box-sizing: border-box;
+}
+input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+
+/* --- Buttons --- */
+button {
+  width: 100%; padding: 0.8rem; border: none; border-radius: 9999px;
+  font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s;
+}
+.btn-primary { background-color: var(--text-main); color: black; }
+.btn-primary:hover { background-color: #d7dbdc; }
+.btn-secondary { background-color: transparent; border: 1px solid var(--border-color); color: var(--primary); }
+.btn-secondary:hover { background-color: rgba(29, 155, 240, 0.1); }
+
+/* Action Buttons */
+.btn-danger { background-color: var(--danger); color: white; padding: 0.5rem 1rem; width: auto; font-size: 0.9rem; }
+.btn-outline-danger { background: transparent; border: 1px solid var(--border-color); color: var(--danger); padding: 0.5rem 1rem; width: auto; font-size: 0.9rem; }
+.btn-outline-danger:hover { background: rgba(244, 33, 46, 0.1); }
+.btn-success { background: transparent; border: 1px solid var(--border-color); color: var(--success); padding: 0.5rem 1rem; width: auto; font-size: 0.9rem; }
+.btn-success:hover { background: rgba(0, 186, 124, 0.1); }
+
+/* --- Tables --- */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+table { width: 100%; border-collapse: collapse; }
+thead { border-bottom: 1px solid var(--border-color); background-color: #0d0f11; }
+
+th {
+  text-align: left;
+  padding: 16px 20px; 
+  font-weight: 700; color: var(--text-secondary);
+  font-size: 13px; text-transform: uppercase;
+}
+
+td {
+  padding: 16px 20px; 
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main); vertical-align: middle;
+}
+
+tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+/* --- Badges --- */
+.badge { padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; border: 1px solid var(--border-color); }
+.badge-active { color: var(--success); background: rgba(0, 186, 124, 0.1); border-color: transparent; }
+.badge-inactive { color: var(--text-secondary); background: rgba(113, 118, 123, 0.2); border-color: transparent; }
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--backdrop);
+  display: flex; justify-content: center; align-items: center; z-index: 2000;
+}
+.modal-content {
+  background-color: black; padding: 2rem; border-radius: 16px; width: 320px; text-align: center;
+  box-shadow: 0 0 15px rgba(255,255,255,0.1); border: 1px solid var(--border-color);
+}
+
+/* --- LOADING SPINNER --- */
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #1d9bf0;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- TOASTIFY FIXES (Notification Alignment) --- */
+.Toastify__toast {
+  position: relative; /* Allows absolute positioning inside */
+}
+
+.Toastify__close-button {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  
+  /* Reset global button styles so they don't mess up the X */
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  color: #e7e9ea !important; /* Light grey/white color */
+  opacity: 0.7;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
 }

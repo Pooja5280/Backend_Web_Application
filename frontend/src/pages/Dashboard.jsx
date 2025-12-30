@@ -2,25 +2,22 @@ import { useEffect, useState, useContext } from 'react';
 import { toast } from 'react-toastify';
 import API from '../services/api';
 import AuthContext from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar'; 
 
 const Dashboard = () => {
-    const { logout, user } = useContext(AuthContext);
-    const navigate = useNavigate();
-    
+    // Note: 'logout' is no longer needed here because Navbar handles it
+    const { user } = useContext(AuthContext); 
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-
+    
     // Modal State
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [actionType, setActionType] = useState(''); // 'activate' or 'deactivate'
+    const [actionType, setActionType] = useState('');
 
-    useEffect(() => {
-        fetchUsers();
-    }, [page]);
+    useEffect(() => { fetchUsers(); }, [page]);
 
     const fetchUsers = async () => {
         try {
@@ -45,106 +42,106 @@ const Dashboard = () => {
         try {
             const newStatus = actionType === 'activate' ? 'active' : 'inactive';
             await API.put(`/users/${selectedUser._id}/status`, { status: newStatus });
-            
             toast.success(`User ${newStatus}d successfully`);
-            fetchUsers(); // Refresh list
+            fetchUsers();
             setShowModal(false);
         } catch (error) {
             toast.error('Failed to update status');
         }
     };
 
-    if (loading) return <div className="container">Loading...</div>;
+    // --- CHANGED: Replaced plain text with Spinner class ---
+    if (loading) return <div className="spinner"></div>;
 
     return (
-        <div className="container">
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2>Admin Dashboard</h2>
-                <div>
-                    <span style={{ marginRight: '15px' }}>Welcome, {user?.fullName}</span>
-                    <button onClick={logout} style={{ backgroundColor: '#dc3545' }}>Logout</button>
-                </div>
-            </header>
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            
+            {/* 1. Insert Navbar Component */}
+            <Navbar />
 
-            <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
-                    <thead>
-                        <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
-                            <th style={{ padding: '10px' }}>Full Name</th>
-                            <th style={{ padding: '10px' }}>Email</th>
-                            <th style={{ padding: '10px' }}>Role</th>
-                            <th style={{ padding: '10px' }}>Status</th>
-                            <th style={{ padding: '10px' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((u) => (
-                            <tr key={u._id} style={{ borderBottom: '1px solid #eee' }}>
-                                <td style={{ padding: '10px' }}>{u.fullName}</td>
-                                <td style={{ padding: '10px' }}>{u.email}</td>
-                                <td style={{ padding: '10px' }}>{u.role}</td>
-                                <td style={{ padding: '10px' }}>
-                                    <span style={{ 
-                                        padding: '4px 8px', 
-                                        borderRadius: '4px',
-                                        backgroundColor: u.status === 'active' ? '#d4edda' : '#f8d7da',
-                                        color: u.status === 'active' ? '#155724' : '#721c24'
-                                    }}>
-                                        {u.status}
-                                    </span>
-                                </td>
-                                <td style={{ padding: '10px' }}>
-                                    {u.role !== 'admin' && (
-                                        <>
-                                            {u.status === 'inactive' ? (
-                                                <button 
-                                                    onClick={() => handleStatusClick(u, 'activate')}
-                                                    style={{ backgroundColor: '#28a745', fontSize: '0.8rem', marginRight: '5px' }}
-                                                >
-                                                    Activate
-                                                </button>
-                                            ) : (
-                                                <button 
-                                                    onClick={() => handleStatusClick(u, 'deactivate')}
-                                                    style={{ backgroundColor: '#ffc107', color: '#000', fontSize: '0.8rem', marginRight: '5px' }}
-                                                >
-                                                    Deactivate
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
-                                </td>
+            {/* 2. Added marginTop so the Fixed Navbar doesn't cover the content */}
+            <div className="dashboard-container" style={{ marginTop: '80px' }}>
+                
+                <div className="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {users.map((u) => (
+                                <tr key={u._id}>
+                                    <td>
+                                        <div style={{ fontWeight: '700', color: '#e7e9ea', fontSize: '15px' }}>{u.fullName}</div>
+                                        <div style={{ color: '#71767b', fontSize: '13px' }}>{u.email}</div>
+                                    </td>
+                                    <td>
+                                        <span style={{ color: u.role === 'admin' ? '#1d9bf0' : '#71767b', fontWeight: 'bold' }}>
+                                            {u.role === 'admin' ? '@admin' : 'user'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className={`badge ${u.status === 'active' ? 'badge-active' : 'badge-inactive'}`}>
+                                            {u.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {u.role !== 'admin' && (
+                                            <>
+                                                {u.status === 'inactive' ? (
+                                                    <button onClick={() => handleStatusClick(u, 'activate')} className="btn-success">
+                                                        Activate
+                                                    </button>
+                                                ) : (
+                                                    <button onClick={() => handleStatusClick(u, 'deactivate')} className="btn-outline-danger">
+                                                        Deactivate
+                                                    </button>
+                                                )}
+                                            </>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
-            {/* Pagination */}
-            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
-                <span>Page {page} of {totalPages}</span>
-                <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>Next</button>
-            </div>
+                <div style={{ padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', borderTop: '1px solid #2f3336' }}>
+                    <button style={{ background: 'transparent', color: '#1d9bf0', border: '1px solid #2f3336', padding: '8px 16px', width: 'auto' }} disabled={page === 1} onClick={() => setPage(page - 1)}>
+                        Previous
+                    </button>
+                    <span style={{ color: '#71767b' }}>Page {page} of {totalPages}</span>
+                    <button style={{ background: 'transparent', color: '#1d9bf0', border: '1px solid #2f3336', padding: '8px 16px', width: 'auto' }} disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+                        Next
+                    </button>
+                </div>
 
-            {/* Confirmation Modal */}
-            {showModal && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center'
-                }}>
-                    <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', minWidth: '300px', color: 'black' }}>
-                        <h3>Confirm Action</h3>
-                        <p>Are you sure you want to <b>{actionType}</b> this user?</p>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-                            <button onClick={() => setShowModal(false)} style={{ backgroundColor: '#6c757d' }}>Cancel</button>
-                            <button onClick={confirmStatusChange} style={{ backgroundColor: actionType === 'activate' ? '#28a745' : '#dc3545' }}>
-                                Confirm
-                            </button>
+                {/* Modal */}
+                {showModal && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <h3 style={{ marginTop: 0, fontSize: '20px', color: '#e7e9ea' }}>
+                                {actionType === 'activate' ? 'Activate User?' : 'Deactivate User?'}
+                            </h3>
+                            <p style={{ color: '#71767b', lineHeight: '1.5', marginBottom: '20px' }}>
+                                Are you sure you want to {actionType} <b>{selectedUser?.fullName}</b>?
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <button onClick={confirmStatusChange} className={actionType === 'activate' ? 'btn-primary' : 'btn-danger'} style={{width: '100%', borderRadius: '99px'}}>
+                                    Confirm {actionType === 'activate' ? 'Activation' : 'Deactivation'}
+                                </button>
+                                <button onClick={() => setShowModal(false)} style={{ background: 'transparent', color: 'white', border: '1px solid #536471', padding: '10px', width: '100%' }}>
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };
