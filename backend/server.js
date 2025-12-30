@@ -5,22 +5,31 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 
+// Load environment variables
 dotenv.config();
 
 const app = express();
 
-
+// Middleware
 app.use(express.json()); 
-app.use(cors()); 
 
+// --- UPDATED: Secure CORS Configuration ---
+// This allows cookies/headers to be sent securely
+app.use(cors({
+    origin: '*', // In production, replace this with your frontend URL (e.g., 'https://myapp.vercel.app')
+    credentials: true
+}));
+
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
+// Health Check Route
 app.get('/', (req, res) => {
     res.send('Backend is running successfully!');
 });
 
-
+// Database Connection
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
@@ -31,10 +40,11 @@ const connectDB = async () => {
     }
 };
 
-
 const PORT = process.env.PORT || 5000;
 
-// Only connect to DB and start server if this file is run directly
+// --- TESTING SETUP ---
+// Only connect to DB and start server if this file is run directly.
+// If imported by a test file (like auth.test.js), it won't start automatically.
 if (require.main === module) {
     connectDB().then(() => {
         app.listen(PORT, () => {

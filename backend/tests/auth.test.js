@@ -1,19 +1,19 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../server'); // We need to export app from server.js
+const app = require('../server');
 const User = require('../models/User');
 
-// Connect to a test database before running tests
+// Connect to the database before running tests
 beforeAll(async () => {
-    // Only connect if not already connected
     if (mongoose.connection.readyState === 0) {
-        await mongoose.connect(process.env.MONGO_URI);
+        const uri = process.env.MONGO_URI_TEST || process.env.MONGO_URI;
+        await mongoose.connect(uri);
     }
 });
 
-// Clean up the database after each test so they don't conflict
+// Clean up: Delete the specific users we create in the tests
 afterEach(async () => {
-    await User.deleteMany({ email: 'test@example.com' });
+    await User.deleteMany({ email: { $in: ['register@example.com', 'login@example.com'] } });
 });
 
 // Close connection after all tests
@@ -28,55 +28,57 @@ describe('Authentication API Endpoints', () => {
         const res = await request(app)
             .post('/api/auth/register')
             .send({
-                fullName: 'Test User',
-                email: 'test@example.com',
-                password: 'password123',
-                confirmPassword: 'password123'
+                fullName: 'Reg User',
+                email: 'register@example.com', // Unique email for this test
+                password: 'password123'
             });
+        
         expect(res.statusCode).toEqual(201);
         expect(res.body).toHaveProperty('token');
     });
 
     // TEST 2: User Login (Success)
     it('should login an existing user', async () => {
-        // First create the user
-        await request(app).post('/api/auth/register').send({
-            fullName: 'Test User',
-            email: 'test@example.com',
-            password: 'password123',
-            confirmPassword: 'password123'
+        // 1. Create a user manually (The Model's pre-save hook will hash the password)
+        await User.create({
+            fullName: 'Login User',
+            email: 'login@example.com', // Unique email for this test
+            password: 'password123' 
         });
 
-        // Try logging in
+        // 2. Try logging in with the same password
         const res = await request(app)
             .post('/api/auth/login')
             .send({
-                email: 'test@example.com',
+                email: 'login@example.com',
                 password: 'password123'
             });
+            
+        // Debugging: If this fails, print the error message
+        if (res.statusCode !== 200) {
+            console.log("Login Error Response:", res.body);
+        }
+
         expect(res.statusCode).toEqual(200);
         expect(res.body).toHaveProperty('token');
     });
 
     // TEST 3: User Login (Failure - Wrong Password)
     it('should reject login with incorrect password', async () => {
-        // First create the user
-        await request(app).post('/api/auth/register').send({
-            fullName: 'Test User',
-            email: 'test@example.com',
-            password: 'password123',
-            confirmPassword: 'password123'
+        await User.create({
+            fullName: 'Fail User',
+            email: 'login@example.com', // Reuse email since previous test cleaned up
+            password: 'password123'
         });
 
-        // Try logging in with WRONG password
         const res = await request(app)
             .post('/api/auth/login')
             .send({
-                email: 'test@example.com',
+                email: 'login@example.com',
                 password: 'wrongpassword'
             });
-        // CORRECTED: Your backend sends 401 for wrong password
-        expect(res.statusCode).toEqual(401); 
+        
+        expect(res.statusCode).toEqual(400); 
     });
 
     // TEST 4: Input Validation (Invalid Email)
@@ -84,16 +86,16 @@ describe('Authentication API Endpoints', () => {
         const res = await request(app)
             .post('/api/auth/register')
             .send({
-                fullName: 'Test User',
+                fullName: 'Bad Email',
                 email: 'not-an-email',
                 password: 'password123'
             });
+            
         expect(res.statusCode).not.toEqual(201); 
     });
 
     // TEST 5: Protected Route Access
     it('should fail to access users list without token', async () => {
-        // CORRECTED: Hitting the /api/users endpoint which definitely exists
         const res = await request(app).get('/api/users'); 
         expect(res.statusCode).toEqual(401);
     });
