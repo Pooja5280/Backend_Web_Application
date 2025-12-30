@@ -4,9 +4,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 
-// Placeholder Pages (We will create these next)
-const Login = () => <div><h1>Login Page</h1></div>;
-const Signup = () => <div><h1>Signup Page</h1></div>;
+
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+
+
 const Dashboard = () => <div><h1>Admin Dashboard</h1></div>;
 const Profile = () => <div><h1>User Profile</h1></div>;
 
@@ -20,7 +22,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             
-            {/* Protected Routes (Logged in Users) */}
+            {/* Protected Routes */}
             <Route element={<PrivateRoute />}>
                 <Route path="/profile" element={<Profile />} />
             </Route>
@@ -30,7 +32,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
             </Route>
 
-            {/* Default redirect */}
+            {/* Default redirect to login if route not found */}
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </div>
