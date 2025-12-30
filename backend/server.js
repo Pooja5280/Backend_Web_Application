@@ -14,17 +14,29 @@ const app = express();
 app.use(express.json()); 
 
 // --- UPDATED: Secure CORS Configuration ---
-// This allows cookies/headers to be sent securely
 app.use(cors({
-    origin: '*', // In production, replace this with your frontend URL (e.g., 'https://myapp.vercel.app')
+    origin: '*', 
     credentials: true
 }));
+
+// --- ADDED: API Base Route to fix "Cannot GET /api" ---
+// This ensures the link in your documentation works for examiners
+app.get('/api', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "MERN Auth API is running successfully!",
+        endpoints: {
+            auth: "/api/auth",
+            users: "/api/users"
+        }
+    });
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
-// Health Check Route
+// Health Check Route (for Render root)
 app.get('/', (req, res) => {
     res.send('Backend is running successfully!');
 });
@@ -42,9 +54,6 @@ const connectDB = async () => {
 
 const PORT = process.env.PORT || 5000;
 
-// --- TESTING SETUP ---
-// Only connect to DB and start server if this file is run directly.
-// If imported by a test file (like auth.test.js), it won't start automatically.
 if (require.main === module) {
     connectDB().then(() => {
         app.listen(PORT, () => {
@@ -53,4 +62,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = app; // Export app for testing
+module.exports = app;
