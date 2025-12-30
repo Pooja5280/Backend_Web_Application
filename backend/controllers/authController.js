@@ -88,6 +88,12 @@ exports.loginUser = async (req, res) => {
 
 
 exports.getMe = async (req, res) => {
-   
-    res.status(200).json({ message: "User data display" });
-}
+    const user = {
+        _id: req.user._id,
+        fullName: req.user.fullName,
+        email: req.user.email,
+        role: req.user.role,
+        status: req.user.status,
+    };
+    res.status(200).json(user);
+};
