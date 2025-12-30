@@ -8,7 +8,7 @@ const Signup = () => {
         fullName: '',
         email: '',
         password: '',
-        confirmPassword: '' // Added state for confirm password
+        confirmPassword: ''
     });
 
     const navigate = useNavigate();
@@ -20,25 +20,21 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // 1. Check if passwords match
         if (formData.password !== formData.confirmPassword) {
             return toast.error("Passwords do not match");
         }
 
         try {
-            // 2. Prepare data (exclude confirmPassword from API call)
             const { confirmPassword, ...registerData } = formData;
 
-            // 3. Send Registration Request
+            // This appends /auth/register to your VITE_API_URL
             await API.post('/auth/register', registerData);
             
-            // 4. Success Message
             toast.success('Registration Successful! Please log in.');
-
-            // 5. Redirect to Login Page
             navigate('/login');
             
         } catch (error) {
+            // Displays specific server error (like "User already exists") or a default message
             toast.error(error.response?.data?.message || 'Signup failed');
         }
     };
@@ -47,7 +43,6 @@ const Signup = () => {
         <div className="auth-wrapper">
             <div className="auth-container">
                 <div style={{ fontSize: '2rem', color: 'white', marginBottom: '2rem', fontWeight: 'bold' }}>Sign Up</div>
-                
                 <h2>Create your account</h2>
                 
                 <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
