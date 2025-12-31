@@ -48,10 +48,29 @@ This is a full-stack MERN (MongoDB, Express, React, Node.js) application designe
 
 ## 5. API Documentation
 
-### Auth Endpoints
+* **Live Website (Frontend)**: https://backend-web-application.vercel.app
+* **API Base URL (Backend)**: https://mern-backend-api-3sqm.onrender.com/api
+* > **Note**: The API is fully functional. Visiting the base URL directly will now return a JSON success message confirming the service status.
+  
+### Endpoints
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| **POST** | `/auth/register` | Register a new user account. |
-| **POST** | `/auth/login` | Authenticate user and return a JWT. |
-| **GET** | `/auth/me` | Fetch current user profile (Protected). |
+| **POST** | `/auth/register` | Registers a new user. |
+| **POST** | `/auth/login` | Authenticates a user and returns a JWT. |
+| **GET** | `/auth/me` | Returns the logged-in user's profile. |
 
+### Example Request (Registration) (FOR ADMIN)
+```json
+{
+  "fullName": "J Pooja",
+  "email": "poojajr2508@gmail.com",
+  "password": "Pooja#0025"
+}
+```
+### Example Response (Success)
+```json
+{
+  "success": true,
+  "message": "Registration Successful! Please log in."
+}
+```
