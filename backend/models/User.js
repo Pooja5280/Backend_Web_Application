@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // <--- 1. Import bcrypt
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
     fullName: {
@@ -13,10 +13,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        match: [
-            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-            'Please enter a valid email'
-        ]
+        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
     },
     password: {
         type: String,
@@ -41,20 +38,19 @@ const userSchema = new mongoose.Schema({
     timestamps: true 
 });
 
-// --- 2. ADD THIS: Middleware to Hash Password before Saving ---
+// Middleware to Hash Password before Saving
 userSchema.pre('save', async function (next) {
-    // Only hash the password if it has been modified (or is new)
+    // CRITICAL: Only hash if the password field is modified
     if (!this.isModified('password')) {
         return next();
     }
     
-    // Generate salt and hash
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
-// --- 3. ADD THIS: Helper method to compare passwords ---
+// Helper method to compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };

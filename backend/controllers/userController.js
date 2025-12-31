@@ -1,9 +1,6 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
 
 // @desc    Get all users (with pagination)
-// @route   GET /api/users
-// @access  Private/Admin
 exports.getAllUsers = async (req, res) => {
     const pageSize = 10; 
     const page = Number(req.query.pageNumber) || 1;
@@ -12,7 +9,7 @@ exports.getAllUsers = async (req, res) => {
         const count = await User.countDocuments({});
         const users = await User.find({})
             .select('-password') 
-            .limit(pageSize)              // <--- ADD THIS LINE HERE!
+            .limit(pageSize)
             .skip(pageSize * (page - 1))
             .sort({ createdAt: -1 }); 
 
@@ -23,8 +20,6 @@ exports.getAllUsers = async (req, res) => {
 };
 
 // @desc    Update user status (Active/Inactive)
-// @route   PUT /api/users/:id/status
-// @access  Private/Admin
 exports.updateUserStatus = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -42,8 +37,6 @@ exports.updateUserStatus = async (req, res) => {
 };
 
 // @desc    Update user profile
-// @route   PUT /api/users/profile
-// @access  Private
 exports.updateUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
@@ -52,9 +45,9 @@ exports.updateUserProfile = async (req, res) => {
             user.fullName = req.body.fullName || user.fullName;
             user.email = req.body.email || user.email;
 
+            // Pass plain text password - the User model middleware hashes it
             if (req.body.password) {
-                 const salt = await bcrypt.genSalt(10);
-                 user.password = await bcrypt.hash(req.body.password, salt);
+                user.password = req.body.password; 
             }
 
             const updatedUser = await user.save();
